@@ -13,8 +13,6 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 
 const diceSides = ref('');
-const tallyDone = ref(false);
-
 const rolls = ref({});
 const totalRolls = ref(0);
 
@@ -26,19 +24,24 @@ const isInputValid = computed(() => {
   );
 });
 
+const minRollsReached = ref(false);
+
 watch(diceSides, (_) => {
   resetRolls();
-  router.replace('#rolling');
+
+  if (isInputValid.value) {
+    router.replace('#rolling');
+  }
 });
 
-watch(tallyDone, (newTally, oldTally) => {
-  if (newTally && newTally !== oldTally) {
+watch(minRollsReached, (newRolls, oldRolls) => {
+  if (newRolls && newRolls !== oldRolls) {
     router.replace('#results');
   }
 });
 
 function resetRolls() {
-  tallyDone.value = false;
+  minRollsReached.value = false;
   totalRolls.value = 0;
 
   if (isInputValid.value) {
@@ -72,10 +75,9 @@ function countRoll(n) {
           are fair. It uses the
           <a
             href="https://en.wikipedia.org/wiki/Chi-squared_test"
-            class="visited:text-primary-200 dark:visited:text-secondary-100 pt-4 font-bold"
+            class="visited:text-primary-200 dark:visited:text-secondary-100 pt-4 font-bold underline underline-offset-2"
+            >Chi-Squared test</a
           >
-            Chi-Squared test
-          </a>
           for calculating the deviation from the normal probability in a perfect
           world with a perfect die. To get started, just fill the field below,
           you will need to roll your dice a bunch of times...
@@ -92,7 +94,7 @@ function countRoll(n) {
           <div class="flex w-full max-w-96 gap-2">
             <input
               v-model.number="diceSides"
-              type="text"
+              type="number"
               class="flex-1 rounded bg-gray-300 px-2 py-1 focus:outline-none dark:bg-gray-600"
               name="diceSize"
               id="diceSize"
@@ -106,19 +108,19 @@ function countRoll(n) {
       </section>
 
       <section id="rolling">
-        <VContainer>
+        <VContainer class="w-full">
           <h2 class="text-2xl font-bold dark:text-white">
             Lets start rolling!
           </h2>
 
           <p>Roll your dice and mark the results below</p>
           <ul
-            class="grid w-full grid-cols-4 justify-items-center gap-4 py-2 md:w-fit md:grid-cols-5 lg:grid-cols-10"
+            class="grid grid-cols-4 justify-items-center gap-4 py-2 md:grid-cols-5 lg:grid-cols-10"
           >
             <li v-for="n in 20" class="w-full">
               <BaseButton
                 @click="countRoll(n)"
-                class="h-16 w-full rounded text-xl md:w-16"
+                class="h-16 w-16 rounded text-xl"
                 :disabled="n > diceSides || !isInputValid"
               >
                 {{ n }}
@@ -127,23 +129,24 @@ function countRoll(n) {
           </ul>
 
           <RollCounter
-            @tallyDone="tallyDone = true"
-            class="pt-2"
+            @tallyDone="minRollsReached = true"
+            class="overflow-hidden pt-2 transition-all duration-500"
+            :class="totalRolls > 0 ? 'h-24' : 'h-0'"
             :rolls="rolls"
             :totalRolls="totalRolls"
             :sides="isInputValid ? diceSides : 0"
           />
-
-          <DiePercentage :rolls="rolls" :totalRolls="totalRolls" />
+          <DiePercentage :rolls :totalRolls="totalRolls" :sides="diceSides" />
         </VContainer>
       </section>
 
-      <section v-if="tallyDone" id="results">
+      <section id="results">
         <VContainer>
           <Calculator
             :rolls="rolls"
             :totalRolls="totalRolls"
             :sides="diceSides"
+            :tallyDone="minRollsReached"
             class="max-w-96"
           />
         </VContainer>

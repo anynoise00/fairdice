@@ -1,7 +1,7 @@
 <script setup>
 import VContainer from './VerticalContainer.vue';
 
-const props = defineProps(['rolls', 'totalRolls']);
+const props = defineProps(['rolls', 'totalRolls', 'sides']);
 
 function calcRollPercentage(numRolls) {
   const percentage = Math.round((numRolls / props.totalRolls) * 1000) / 10;
@@ -10,15 +10,16 @@ function calcRollPercentage(numRolls) {
 </script>
 
 <template>
-  <VContainer v-if="totalRolls > 0">
-    <h3 class="pt-8 text-xl font-bold">Total Rolls</h3>
-    <p class="pb-2">From a total of {{ totalRolls }} rolls</p>
+  <VContainer>
+    <h3 class="pt-4 text-xl font-bold">Rolls Percentage</h3>
 
-    <p v-for="(r, i) in rolls">
+    <p v-if="sides" v-for="i in sides">
       <span class="font-bold">{{ i }}</span> was rolled
-      <span class="font-bold">{{ r }} times</span> ({{
-        calcRollPercentage(r)
-      }}%)
+      <span class="font-bold"
+        >{{ rolls[i] }} {{ rolls[i] !== 1 ? 'times' : 'time' }}</span
+      >
+      ({{ calcRollPercentage(rolls[i]) }}%)
     </p>
+    <p v-else>-</p>
   </VContainer>
 </template>

@@ -9,7 +9,10 @@ const minMult = 5;
 const betterMult = 10;
 
 const rollsRemaining = computed(() => {
-  return props.sides * betterMult - props.totalRolls;
+  const remaining = props.sides
+    ? props.sides * betterMult - props.totalRolls
+    : NaN;
+  return remaining;
 });
 
 watch(rollsRemaining, (num) => {
@@ -22,7 +25,8 @@ watch(rollsRemaining, (num) => {
 <template>
   <VContainer>
     <p class="text-xl font-bold dark:text-white">
-      You have rolled {{ totalRolls ? totalRolls : 0 }} times
+      You have rolled {{ totalRolls ? totalRolls : 0 }}
+      {{ totalRolls > 1 ? 'times' : 'time' }}
     </p>
     <p class="text-md max-w-96 text-center">
       a <span class="font-bold">minimum of {{ sides * minMult }} rolls</span> is
