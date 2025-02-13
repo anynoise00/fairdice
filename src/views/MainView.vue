@@ -10,13 +10,12 @@ import Calculator from '../components/Calculator.vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
+
 const diceSides = ref('');
-const rolls = ref([]);
 const tallyDone = ref(false);
 
-watch(diceSides, (_) => {
-  clearRolls();
-});
+const rolls = ref({});
+const totalRolls = ref(0);
 
 const isInputValid = computed(() => {
   return (
@@ -26,20 +25,61 @@ const isInputValid = computed(() => {
   );
 });
 
-function clearRolls() {
-  rolls.value = [];
+watch(diceSides, (_) => {
+  resetRolls();
+});
+
+watch(tallyDone, (newTally, oldTally) => {
+  if (newTally && newTally !== oldTally) {
+    router.replace('#results');
+  }
+});
+
+function resetRolls() {
   tallyDone.value = false;
+  totalRolls.value = 0;
+
+  if (isInputValid.value) {
+    const r = {};
+
+    for (let i = 0; i < diceSides.value; i++) {
+      r[i + 1] = 0;
+    }
+
+    rolls.value = r;
+  }
+}
+
+function countRoll(n) {
+  rolls.value[n]++;
+  totalRolls.value++;
 }
 </script>
 
 <template>
-  <header class="flex justify-between p-2">
-    <h1 class="p-2 text-3xl font-bold dark:text-white">Fairdice</h1>
+  <header class="flex justify-between border-b-1 pt-2 pb-4">
+    <h1 class="text-3xl font-bold dark:text-white">Fairdice</h1>
     <DarkMode />
   </header>
 
-  <main>
-    <VContainer class="w-full gap-y-8 p-2 px-4 md:px-8">
+  <main class="pt-4">
+    <VContainer class="w-full gap-y-8">
+      <section class="" id="introduction">
+        <p class="text-justify text-lg">
+          Hello and welcome to Fairdice! A website used to test if your dices
+          are fair. It uses the
+          <a
+            href="https://en.wikipedia.org/wiki/Chi-squared_test"
+            class="visited:text-primary-200 dark:visited:text-secondary-100 pt-4 font-bold"
+          >
+            Chi-Squared test
+          </a>
+          for calculating the deviation from the normal probability in a perfect
+          world with a perfect die. To get started, just fill the field below,
+          you will need to roll your dice a bunch of times...
+        </p>
+      </section>
+
       <section id="dice-info">
         <VContainer>
           <h2 class="text-2xl font-bold dark:text-white">Dice Info</h2>
@@ -64,7 +104,7 @@ function clearRolls() {
       </section>
 
       <section id="rolling">
-        <VContainer class="">
+        <VContainer>
           <h2 class="text-2xl font-bold dark:text-white">
             Lets start rolling!
           </h2>
@@ -75,7 +115,7 @@ function clearRolls() {
           >
             <li v-for="n in 20" class="w-full">
               <BaseButton
-                @click="rolls.unshift(n)"
+                @click="countRoll(n)"
                 class="h-16 w-full rounded text-xl md:w-16"
                 :disabled="n > diceSides || !isInputValid"
               >
@@ -85,35 +125,30 @@ function clearRolls() {
           </ul>
 
           <RollCounter
+            @tallyDone="tallyDone = true"
             class="pt-2"
-            @minimumReached="tallyDone = true"
-            :count="rolls.length"
+            :rolls="rolls"
+            :totalRolls="totalRolls"
             :sides="isInputValid ? diceSides : 0"
           />
-
-          <VContainer>
-            <p class="pt-6 text-lg font-bold">Most recent rolls:</p>
-            <p class="pb-4">
-              {{ rolls.length > 0 ? rolls.slice(0, 5).join(', ') : '-' }}
-            </p>
-          </VContainer>
         </VContainer>
       </section>
 
-      <section id="results">
+      <section v-if="tallyDone" id="results">
         <VContainer>
-          <h2 class="text-2xl font-bold dark:text-white">
-            These are the results
-          </h2>
-
-          <Calculator :rolls="rolls" :sides="diceSides" class="max-w-96" />
+          <Calculator
+            :rolls="rolls"
+            :totalRolls="totalRolls"
+            :sides="diceSides"
+            class="max-w-96"
+          />
         </VContainer>
       </section>
     </VContainer>
   </main>
 
   <footer class="flex w-full justify-center pt-32 pb-8">
-    <p>&#169; 2025 AnyNoise</p>
+    <p>&#169; 2025 Vinícius Pinto</p>
   </footer>
 
   <BackToTop />

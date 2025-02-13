@@ -12,8 +12,15 @@ const router = createRouter({
   history: createMemoryHistory(),
   routes,
 
-  scrollBehavior() {
-    return { top: 0, behavior: 'smooth' };
+  scrollBehavior(to) {
+    if (to.hash) {
+      return {
+        el: to.hash,
+        behavior: 'smooth',
+      };
+    } else {
+      return { top: 0, behavior: 'smooth' };
+    }
   },
 });
 
