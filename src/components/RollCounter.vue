@@ -2,7 +2,7 @@
 import { computed, watch } from 'vue';
 import VContainer from './VerticalContainer.vue';
 
-const props = defineProps(['rolls', 'totalRolls', 'sides']);
+const props = defineProps(['totalRolls', 'sides']);
 const emit = defineEmits(['tallyDone']);
 
 const minMult = 5;
@@ -17,11 +17,6 @@ watch(rollsRemaining, (num) => {
     emit('tallyDone');
   }
 });
-
-function calcRollPercentage(numRolls) {
-  const percentage = Math.round((numRolls / props.totalRolls) * 1000) / 10;
-  return percentage ? percentage : 0;
-}
 </script>
 
 <template>
@@ -35,17 +30,5 @@ function calcRollPercentage(numRolls) {
       <span class="font-bold"> {{ sides * betterMult }} or more times </span>
       gives more accurate results
     </p>
-
-    <VContainer v-if="totalRolls > 0">
-      <h3 class="pt-8 text-xl font-bold">Total Rolls</h3>
-      <p class="pb-2">From a total of {{ totalRolls }} rolls</p>
-
-      <p v-for="(roll, index) in rolls">
-        <span class="font-bold">{{ index }}</span> was rolled
-        <span class="font-bold">{{ roll }} times</span> ({{
-          calcRollPercentage(roll, totalRolls)
-        }}%)
-      </p>
-    </VContainer>
   </VContainer>
 </template>

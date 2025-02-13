@@ -6,6 +6,7 @@ import DarkMode from '../components/DarkMode.vue';
 import BackToTop from '@/components/BackToTop.vue';
 import BaseButton from '../components/BaseButton.vue';
 import RollCounter from '../components/RollCounter.vue';
+import DiePercentage from '../components/DiePercentage.vue';
 import Calculator from '../components/Calculator.vue';
 import { useRouter } from 'vue-router';
 
@@ -27,6 +28,7 @@ const isInputValid = computed(() => {
 
 watch(diceSides, (_) => {
   resetRolls();
+  router.replace('#rolling');
 });
 
 watch(tallyDone, (newTally, oldTally) => {
@@ -131,6 +133,8 @@ function countRoll(n) {
             :totalRolls="totalRolls"
             :sides="isInputValid ? diceSides : 0"
           />
+
+          <DiePercentage :rolls="rolls" :totalRolls="totalRolls" />
         </VContainer>
       </section>
 
