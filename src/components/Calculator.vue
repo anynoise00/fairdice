@@ -43,8 +43,10 @@ function calcChiSquared(eValue) {
   return chiSqrd;
 }
 
-function calcRollPercentage(numOfRolls, totalRolls) {
-  return Math.round((numOfRolls / totalRolls) * 1000) / 10;
+function calcRollPercentage(numRolls, totalRolls) {
+  const percentage = Math.round((numRolls / totalRolls) * 1000) / 10;
+
+  return percentage ? percentage : 0;
 }
 </script>
 
@@ -62,25 +64,29 @@ function calcRollPercentage(numOfRolls, totalRolls) {
       <p v-else>Looks biased</p>
     </VContainer>
 
-    <VContainer v-if="chiSquared >= 0" class="max-w-96">
+    <VContainer v-if="chiSquared >= 0">
       <h3 class="text-xl font-bold">Chi-Squared</h3>
       <p class="pb-4">The Chi-Squared is {{ chiSquared }}</p>
 
-      <p v-if="chiSquared < signifiance[0]" class="text-center">
-        which is less than {{ signifiance[0] }}, that means that your dice is
-        inside the acceptable margin of probability error (5%)
-      </p>
-      <p
-        v-else-if="chiSquared >= signifiance[0] && chiSquared <= signifiance[1]"
-        class="text-center"
-      >
-        which is between {{ signifiance[0] }} and {{ signifiance[1] }}, and is
-        an inconclusive result, more data may be needed
-      </p>
-      <p v-else class="text-center">
-        which is higher than {{ signifiance[1] }}, so it is extremely below the
-        acceptable margin of probability error (below 1%)
-      </p>
+      <div class="flex">
+        <p v-if="chiSquared < signifiance[0]" class="text-center">
+          which is less than {{ signifiance[0] }}, that means that your dice is
+          inside the acceptable margin of probability error (5%)
+        </p>
+        <p
+          v-else-if="
+            chiSquared >= signifiance[0] && chiSquared <= signifiance[1]
+          "
+          class="text-center"
+        >
+          which is between {{ signifiance[0] }} and {{ signifiance[1] }}, and is
+          an inconclusive result, more data may be needed
+        </p>
+        <p v-else class="text-center">
+          which is higher than {{ signifiance[1] }}; it is extremely below the
+          acceptable margin of probability error (below 1%)
+        </p>
+      </div>
 
       <a
         href="https://en.wikipedia.org/wiki/Chi-squared_test"
@@ -90,13 +96,13 @@ function calcRollPercentage(numOfRolls, totalRolls) {
       </a>
     </VContainer>
 
-    <VContainer>
+    <VContainer v-if="rolls.length > 0">
       <h3 class="text-xl font-bold">Total Rolls</h3>
-      <p>From a total of {{ rolls.length }} rolls</p>
+      <p class="pb-2">From a total of {{ rolls.length }} rolls</p>
 
       <p v-for="(r, index) in rollCount">
-        Your dice <span class="font-bold">rolled {{ index + 1 }}</span> a total
-        of <span class="font-bold">{{ r }} times</span> ({{
+        <span class="font-bold">{{ index + 1 }}</span> was rolled
+        <span class="font-bold">{{ r }} times</span> ({{
           calcRollPercentage(r, rolls.length)
         }}%)
       </p>

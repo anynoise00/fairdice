@@ -7,7 +7,7 @@ const toggleDark = useToggle(isDark);
 </script>
 
 <template>
-  <BaseButton @click="toggleDark()" class="px-2">
-    {{ isDark ? 'Light' : 'Dark' }} Mode</BaseButton
+  <BaseButton @click="toggleDark()" class="rounded-full px-6 py-1">
+    {{ isDark ? 'Light' : 'Dark' }}</BaseButton
   >
 </template>
